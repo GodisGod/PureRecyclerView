@@ -3,6 +3,7 @@ package study.com.purerecyclerview;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +24,16 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<String> strs;
     private LayoutInflater inflater;
+    private Context ctx;
+
+    private View headerView;
+    private View footerView;
+
+    private boolean showHeaderView = false;
 
     public PurAdapter(Context context, List<String> datas) {
         inflater = LayoutInflater.from(context);
+        ctx = context;
         strs = new ArrayList<>();
         strs.addAll(datas);
     }
@@ -33,21 +41,16 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//        View view = inflater.inflate(R.layout.item_view, parent, true);
-//        View view = inflater.inflate(R.layout.item_view, parent); 会报错n: ViewHolder views must not be attached when created. Ensure that you are not passing 'true' to the attachToRoot parameter of LayoutInflate
-
-//        View view = inflater.inflate(R.layout.item_view, parent, false);
-
         switch (viewType) {
             case ITEM_HEAD:
-                View view = inflater.inflate(R.layout.view_header, null);
-                return new HeaderHolder(view);
+                headerView = inflater.inflate(R.layout.view_header, parent, false);
+                return new HeaderHolder(headerView);
             case ITEM_NORMAL:
-                View headerView = inflater.inflate(R.layout.item_view, null);
-                return new ItemHolder(headerView);
+                View itemView = inflater.inflate(R.layout.item_view, parent, false);
+                return new ItemHolder(itemView);
             case ITEM_FOOT:
-                View footView = inflater.inflate(R.layout.view_footer, null);
-                return new FootHolder(footView);
+                footerView = inflater.inflate(R.layout.view_footer, parent, false);
+                return new FootHolder(footerView);
             default:
                 return null;
         }
@@ -57,9 +60,9 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder == null) return;
-        int type = getItemViewType(position);
         if (holder instanceof HeaderHolder) {
             HeaderHolder headerHolder = (HeaderHolder) holder;
+            headerHolder.itemView.setVisibility(showHeaderView ? View.VISIBLE : View.GONE);
             headerHolder.tvHeader.setText("下拉刷新");
         } else if (holder instanceof FootHolder) {
             FootHolder footHolder = (FootHolder) holder;
@@ -85,6 +88,32 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else {
             return ITEM_NORMAL;
         }
+    }
+
+    public View getHeaderView() {
+        return headerView;
+    }
+
+    public View getFooterView() {
+        return footerView;
+    }
+
+    public void changeHeaderHeight(float distance) {
+        Log.i("LHD", "distance = " + distance);
+        if (headerView != null) {
+            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) headerView.getLayoutParams();
+            layoutParams.height = (int) distance;
+            headerView.setLayoutParams(layoutParams);
+            notifyDataSetChanged();
+        }
+    }
+
+    public void roollBack() {
+
+    }
+
+    public void setShowHeaderView(boolean showHeaderView) {
+        this.showHeaderView = showHeaderView;
     }
 
     public class ItemHolder extends RecyclerView.ViewHolder {
