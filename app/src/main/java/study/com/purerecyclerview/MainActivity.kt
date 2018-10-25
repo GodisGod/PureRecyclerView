@@ -13,7 +13,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var datas: ArrayList<String>
     private lateinit var btnAdd: Button
-    private lateinit var headerView: HeaderView
     private var isAdd: Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,13 +26,10 @@ class MainActivity : AppCompatActivity() {
         purRecyclerView.adapter = puradpter
         purRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-//        headerView = findViewById(R.id.head_view)
-
-        btnAdd = findViewById(R.id.btn_add)
-        btnAdd.setOnClickListener {
-            var lp: ViewGroup.LayoutParams = headerView.layoutParams
-            lp.height += 100
-            headerView.layoutParams = lp
+        var btn: Button = findViewById(R.id.btn_1)
+        btn.setOnClickListener {
+            puradpter.setShowHeaderView(false)
+            puradpter.notifyDataSetChanged()
         }
 
     }

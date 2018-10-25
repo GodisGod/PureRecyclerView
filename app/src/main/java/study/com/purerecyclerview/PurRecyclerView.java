@@ -73,7 +73,7 @@ public class PurRecyclerView extends RecyclerView {
                 if (distance < 0) break;
                 isPulling = true;
                 if (curState == STATE_REFRESHING) {
-                    distance += 100;
+                    distance += headerViewHeight;
                 }
                 setState(distance);
                 break;
@@ -113,12 +113,12 @@ public class PurRecyclerView extends RecyclerView {
             curState = STATE_DEFAULT;
         }
 //        松手刷新
-        else if (distance >= 100) {
+        else if (distance >= headerViewHeight) {
             int lastState = curState;
             curState = STATE_RELEASE_TO_REFRESH;
         }
 //        正在拖动
-        else if (distance < 100) {
+        else if (distance < headerViewHeight) {
             int lastState = curState;
             curState = STATE_PULLING;
         }
@@ -145,6 +145,9 @@ public class PurRecyclerView extends RecyclerView {
         isPulling = false;
         //回弹位置
         float targetY = 0;
+        Log.i("LHD", "replyPull  ===>>  " + curState);
+        //todo
+        curState = STATE_DEFAULT;
         //刷新状态回弹
         if (curState == STATE_REFRESHING) { //刷新中  ->  回弹
             targetY = headerViewHeight;

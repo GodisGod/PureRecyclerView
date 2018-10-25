@@ -62,6 +62,7 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (holder == null) return;
         if (holder instanceof HeaderHolder) {
             HeaderHolder headerHolder = (HeaderHolder) holder;
+            Log.i("LHD", "showHeaderView = " + showHeaderView);
             headerHolder.itemView.setVisibility(showHeaderView ? View.VISIBLE : View.GONE);
             headerHolder.tvHeader.setText("下拉刷新");
         } else if (holder instanceof FootHolder) {
