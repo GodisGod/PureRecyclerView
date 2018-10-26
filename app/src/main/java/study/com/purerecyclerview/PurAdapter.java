@@ -1,5 +1,7 @@
 package study.com.purerecyclerview;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +14,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static study.com.purerecyclerview.PurRecyclerView.STATE_DEFAULT;
+import static study.com.purerecyclerview.PurRecyclerView.STATE_PULLING;
+import static study.com.purerecyclerview.PurRecyclerView.STATE_RELEASE_TO_REFRESH;
 
 /**
  * Created by  HONGDA on 2018/10/23.
@@ -29,13 +35,19 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private View headerView;
     private View footerView;
 
+    private boolean isReleaseToRefresh = false;
+
     private boolean showHeaderView = false;
+
+    private int rotationDuration = 200;
+    private ValueAnimator ivAnim;
 
     public PurAdapter(Context context, List<String> datas) {
         inflater = LayoutInflater.from(context);
         ctx = context;
         strs = new ArrayList<>();
         strs.addAll(datas);
+
     }
 
     @NonNull
@@ -62,9 +74,13 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (holder == null) return;
         if (holder instanceof HeaderHolder) {
             HeaderHolder headerHolder = (HeaderHolder) holder;
-            Log.i("LHD", "showHeaderView = " + showHeaderView);
-            headerHolder.itemView.setVisibility(showHeaderView ? View.VISIBLE : View.GONE);
-            headerHolder.tvHeader.setText("下拉刷新");
+            Log.i("LHD", "showHeaderView = " + showHeaderView + "    isReleaseToRefresh   ==  " + isReleaseToRefresh);
+            if (isReleaseToRefresh) {
+                headerHolder.tvHeader.setText("松手刷新");
+                startArrowAnim(headerHolder.imgArrow, 0);
+            } else {
+                headerHolder.tvHeader.setText("下拉刷新");
+            }
         } else if (holder instanceof FootHolder) {
             FootHolder footHolder = (FootHolder) holder;
             footHolder.tvFooter.setText("上拉加载更多");
@@ -109,6 +125,14 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    /**
+     * 改变下拉刷新view的UI
+     */
+    public void changeHeaderUI(boolean isReleaseToRefresh) {
+        this.isReleaseToRefresh = isReleaseToRefresh;
+        notifyDataSetChanged();
+    }
+
     public void roollBack() {
 
     }
@@ -151,4 +175,24 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     }
 
+    private void startArrowAnim(final ImageView imageView, float roration) {
+        if (ivAnim != null) {
+            ivAnim.removeAllUpdateListeners();
+            ivAnim.cancel();
+        }
+        final float fRoration = roration;
+        float startRotation = imageView.getRotation();
+        ivAnim = ObjectAnimator.ofFloat(startRotation, fRoration).setDuration(rotationDuration);
+        ivAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                imageView.setRotation((Float) animation.getAnimatedValue());
+                if (((Float) animation.getAnimatedValue()) == fRoration) {
+                    ivAnim.removeAllUpdateListeners();
+                    ivAnim.cancel();
+                }
+            }
+        });
+        ivAnim.start();
+    }
 }

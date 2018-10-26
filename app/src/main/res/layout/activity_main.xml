@@ -19,4 +19,11 @@
         android:layout_gravity="bottom"
         android:text="隐藏header" />
 
+    <Button
+        android:id="@+id/btn_2"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:text="显示header" />
+
 </FrameLayout>

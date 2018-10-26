@@ -33,7 +33,7 @@ public class PurRecyclerView extends RecyclerView {
     private boolean isPulling = false;//是否正在下拉
 
     private Adapter purAdapter;
-    private int headerViewHeight = 100;
+    private int headerViewHeight = 80;
     //    回弹动画
     private ValueAnimator valueAnimator;
 
@@ -60,18 +60,23 @@ public class PurRecyclerView extends RecyclerView {
         switch (e.getAction()) {
             case MotionEvent.ACTION_MOVE:
                 boolean isTop = isTop();
-                Log.i("LHD", "isTop  ==  " + isTop + "   e.getRawY()  =  " + e.getRawY());
+                Log.i("LHD", "isTop  ==  " + isTop + "   e.getRawY()  =  " + e.getRawY() + "  headerViewHeight  =  " + headerViewHeight);
                 if (!isPulling) {
                     if (isTop) {
+                        //recyclerView滑到最顶部的时候记录当前y坐标
                         topY = e.getRawY();
-                    } else {
+                    } else {//没有滑到最顶部的时候不处理
                         break;
                     }
                 }
+
+                //计算阻尼后的滑动距离 = 滑动距离*阻尼系数
                 float distance = (e.getRawY() - topY) * pullRatio;
                 Log.i("LHD", "onTouchEvent  ==  " + distance + "     (e.getRawY() - topY)   ==  " + (e.getRawY() - topY));
+                //若向上滑动，此时刷新头部已经隐藏，不处理
                 if (distance < 0) break;
                 isPulling = true;
+                //如果是刷新中，距离需要加上头部的高度
                 if (curState == STATE_REFRESHING) {
                     distance += headerViewHeight;
                 }
@@ -106,21 +111,23 @@ public class PurRecyclerView extends RecyclerView {
      * 刷新中不在此处判断，在手指抬起时才判断
      */
     private void setState(float distance) {
-//        刷新中，状态不变
+        //刷新中，状态不变
         if (curState == STATE_REFRESHING) {
 
         } else if (distance == 0) {
             curState = STATE_DEFAULT;
-        }
-//        松手刷新
-        else if (distance >= headerViewHeight) {
-            int lastState = curState;
+        } else if (distance >= headerViewHeight) { //文字提示: 松手刷新   过程：松手刷新 -> 刷新中 -> 刷新结束
+            int lastState = curState;  //上一个状态是下拉中，现在改成准备松手刷新
             curState = STATE_RELEASE_TO_REFRESH;
-        }
-//        正在拖动
-        else if (distance < headerViewHeight) {
-            int lastState = curState;
+            Log.i("LHD", "刷新文案  调整箭头朝向  上上上上上上 ");
+            //todo  刷新文案，调整箭头朝向
+            changeRefreshUI(true);
+        } else if (distance < headerViewHeight) {//文字提示: 下拉刷新
+            int lastState = curState;    //上一个状态是default，现在改成下拉中
             curState = STATE_PULLING;
+            //todo  刷新文案，调整箭头朝向
+            Log.i("LHD", "刷新文案  调整箭头朝向  下下下下下下 ");
+            changeRefreshUI(false);
         }
         startPull(distance);
     }
@@ -134,7 +141,7 @@ public class PurRecyclerView extends RecyclerView {
             distance = 1;
         //改变headview的高度
         PurAdapter adapter = (PurAdapter) purAdapter;
-        adapter.setShowHeaderView(true);
+//        adapter.setShowHeaderView(true);
         adapter.changeHeaderHeight(distance);
     }
 
@@ -146,14 +153,18 @@ public class PurRecyclerView extends RecyclerView {
         //回弹位置
         float targetY = 0;
         Log.i("LHD", "replyPull  ===>>  " + curState);
-        //todo
+        //判断当前状态
         curState = STATE_DEFAULT;
         //刷新状态回弹
         if (curState == STATE_REFRESHING) { //刷新中  ->  回弹
             targetY = headerViewHeight;
         } else if (curState == STATE_RELEASE_TO_REFRESH) {//非刷新状态回弹：松手刷新 -> 刷新 -> 回弹
+            //改变为刷新状态
             curState = STATE_REFRESHING;
             //todo  开始刷新
+            if (refreshListener != null) {
+                refreshListener.startRefresh();
+            }
             targetY = headerViewHeight;
         } else if (curState == STATE_DEFAULT || curState == STATE_PULLING) {
             curState = STATE_DEFAULT;
@@ -189,6 +200,9 @@ public class PurRecyclerView extends RecyclerView {
 
     //对外方法
 
+    /**
+     * 结束刷新
+     */
     public void completeRefresh() {
         curState = STATE_DEFAULT;
         replyPull();
@@ -196,5 +210,18 @@ public class PurRecyclerView extends RecyclerView {
         purAdapter.notifyDataSetChanged();
     }
 
+    private RefreshListener refreshListener;
+
+    public void setRefreshListener(RefreshListener refreshListener) {
+        this.refreshListener = refreshListener;
+    }
+
+    /**
+     * 调整文案和箭头朝向
+     */
+    private void changeRefreshUI(boolean isUP) {
+        PurAdapter adapter = (PurAdapter) purAdapter;
+        adapter.changeHeaderUI(isUP);
+    }
 
 }

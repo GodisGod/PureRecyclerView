@@ -32,6 +32,12 @@ class MainActivity : AppCompatActivity() {
             puradpter.notifyDataSetChanged()
         }
 
+        var btn2: Button = findViewById(R.id.btn_2)
+        btn2.setOnClickListener {
+            puradpter.setShowHeaderView(true)
+            puradpter.notifyDataSetChanged()
+        }
+
     }
 
 }
