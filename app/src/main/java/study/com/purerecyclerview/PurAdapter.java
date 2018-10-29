@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -55,8 +56,10 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case ITEM_HEAD:
-                headerView = inflater.inflate(R.layout.view_header, parent, false);
-                return new HeaderHolder(headerView);
+                View view = inflater.inflate(R.layout.view_header, parent, false);
+                HeaderHolder headerHolder = new HeaderHolder(view);
+                headerView = headerHolder.viewTop;
+                return headerHolder;
             case ITEM_NORMAL:
                 View itemView = inflater.inflate(R.layout.item_view, parent, false);
                 return new ItemHolder(itemView);
@@ -74,13 +77,14 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (holder == null) return;
         if (holder instanceof HeaderHolder) {
             HeaderHolder headerHolder = (HeaderHolder) holder;
-            Log.i("LHD", "showHeaderView = " + showHeaderView + "    isReleaseToRefresh   ==  " + isReleaseToRefresh);
+//            Log.i("LHD", "showHeaderView = " + showHeaderView + "    isReleaseToRefresh   ==  " + isReleaseToRefresh);
             if (isReleaseToRefresh) {
+                headerHolder.imgArrow.setImageResource(R.drawable.arrow_down);
                 headerHolder.tvHeader.setText("松手刷新");
-                startArrowAnim(headerHolder.imgArrow, 0);
             } else {
                 headerHolder.tvHeader.setText("下拉刷新");
             }
+            startArrowAnim(headerHolder.imgArrow, -180f);
         } else if (holder instanceof FootHolder) {
             FootHolder footHolder = (FootHolder) holder;
             footHolder.tvFooter.setText("上拉加载更多");
@@ -118,7 +122,7 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void changeHeaderHeight(float distance) {
         Log.i("LHD", "distance = " + distance);
         if (headerView != null) {
-            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) headerView.getLayoutParams();
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) headerView.getLayoutParams();
             layoutParams.height = (int) distance;
             headerView.setLayoutParams(layoutParams);
             notifyDataSetChanged();
@@ -152,11 +156,13 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public class HeaderHolder extends RecyclerView.ViewHolder {
+        private View viewTop;
         private ImageView imgArrow;
         private TextView tvHeader;
 
         public HeaderHolder(View itemView) {
             super(itemView);
+            viewTop = itemView.findViewById(R.id.view_top);
             imgArrow = itemView.findViewById(R.id.img_arrow);
             tvHeader = itemView.findViewById(R.id.tv_header);
         }

@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 
 
 /**
@@ -64,14 +65,14 @@ public class PurRecyclerView extends RecyclerView {
                 if (!isPulling) {
                     if (isTop) {
                         //recyclerView滑到最顶部的时候记录当前y坐标
-                        topY = e.getRawY();
+                        topY = e.getY();
                     } else {//没有滑到最顶部的时候不处理
                         break;
                     }
                 }
 
                 //计算阻尼后的滑动距离 = 滑动距离*阻尼系数
-                float distance = (e.getRawY() - topY) * pullRatio;
+                float distance = (e.getY() - topY) * pullRatio;
                 Log.i("LHD", "onTouchEvent  ==  " + distance + "     (e.getRawY() - topY)   ==  " + (e.getRawY() - topY));
                 //若向上滑动，此时刷新头部已经隐藏，不处理
                 if (distance < 0) break;
@@ -119,14 +120,14 @@ public class PurRecyclerView extends RecyclerView {
         } else if (distance >= headerViewHeight) { //文字提示: 松手刷新   过程：松手刷新 -> 刷新中 -> 刷新结束
             int lastState = curState;  //上一个状态是下拉中，现在改成准备松手刷新
             curState = STATE_RELEASE_TO_REFRESH;
-            Log.i("LHD", "刷新文案  调整箭头朝向  上上上上上上 ");
+//            Log.i("LHD", "刷新文案  调整箭头朝向  上上上上上上 ");
             //todo  刷新文案，调整箭头朝向
             changeRefreshUI(true);
         } else if (distance < headerViewHeight) {//文字提示: 下拉刷新
             int lastState = curState;    //上一个状态是default，现在改成下拉中
             curState = STATE_PULLING;
             //todo  刷新文案，调整箭头朝向
-            Log.i("LHD", "刷新文案  调整箭头朝向  下下下下下下 ");
+//            Log.i("LHD", "刷新文案  调整箭头朝向  下下下下下下 ");
             changeRefreshUI(false);
         }
         startPull(distance);
@@ -154,7 +155,7 @@ public class PurRecyclerView extends RecyclerView {
         float targetY = 0;
         Log.i("LHD", "replyPull  ===>>  " + curState);
         //判断当前状态
-        curState = STATE_DEFAULT;
+//        curState = STATE_DEFAULT;
         //刷新状态回弹
         if (curState == STATE_REFRESHING) { //刷新中  ->  回弹
             targetY = headerViewHeight;
@@ -172,7 +173,7 @@ public class PurRecyclerView extends RecyclerView {
 
         PurAdapter adapter = (PurAdapter) purAdapter;
         View headView = adapter.getHeaderView();
-        LayoutParams layoutParams = (LayoutParams) headView.getLayoutParams();
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) headView.getLayoutParams();
         float distance = layoutParams.height;
         if (distance <= 0) return;
 

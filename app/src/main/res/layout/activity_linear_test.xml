@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="#0af"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:visibility="visible">
-
-    <View
-        android:id="@+id/view_top"
-        android:layout_width="match_parent"
-        android:layout_height="0.1dp"
-        android:background="#345" />
+    tools:context=".lineartest.LinearTestActivity">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/line_top"
+        android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_gravity="center"
+        android:background="#0af"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/img_arrow"
@@ -36,5 +33,10 @@
             android:textSize="16sp" />
     </LinearLayout>
 
+    <study.com.purerecyclerview.test.EnhanceRecyclerView
+        android:id="@+id/recycler_test"
+        android:layout_width="match_parent"
+        android:background="#0ff"
+        android:layout_height="match_parent" />
 
 </LinearLayout>
