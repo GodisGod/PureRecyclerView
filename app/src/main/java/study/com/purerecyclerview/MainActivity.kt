@@ -49,9 +49,9 @@ class MainActivity : AppCompatActivity() {
 
         var btn: Button = findViewById(R.id.btn_1)
         btn.setOnClickListener {
-            //            puradpter.setShowHeaderView(false)
-//            puradpter.notifyDataSetChanged()
-            startActivity(Intent(this, TestActivity::class.java))
+            puradpter.setShowHeaderView(false)
+            puradpter.notifyDataSetChanged()
+//            startActivity(Intent(this, TestActivity::class.java))
         }
 
         var btn2: Button = findViewById(R.id.btn_2)

@@ -38,6 +38,9 @@ public class PurRecyclerView extends RecyclerView {
     //    回弹动画
     private ValueAnimator valueAnimator;
 
+    //计算滑动距离
+    private float downY = 0;
+
     public PurRecyclerView(Context context) {
         this(context, null);
     }
@@ -59,29 +62,48 @@ public class PurRecyclerView extends RecyclerView {
     @Override
     public boolean onTouchEvent(MotionEvent e) {
         switch (e.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                downY = e.getRawY();//距离屏幕上方的Y坐标
+                break;
             case MotionEvent.ACTION_MOVE:
                 boolean isTop = isTop();
-                Log.i("LHD", "isTop  ==  " + isTop + "   e.getRawY()  =  " + e.getRawY() + "  headerViewHeight  =  " + headerViewHeight);
-                if (!isPulling) {
-                    if (isTop) {
-                        //recyclerView滑到最顶部的时候记录当前y坐标
-                        topY = e.getY();
-                    } else {//没有滑到最顶部的时候不处理
-                        break;
+
+                float currrentY = e.getRawY();
+                float dis = currrentY - downY;
+                Log.i("LHD", "摁下的坐标:  " + downY + "  滑动的距离:  " + dis + "  isTop = " + isTop);
+                if (isTop) {
+                    if (dis <= 0) {//todo 不再下拉
+
+                    } else {
+                        //改变headview的高度
+//                        PurAdapter adapter = (PurAdapter) purAdapter;
+//                        adapter.changeHeaderHeight(dis);
                     }
+                    //计算阻尼后的滑动距离 = 滑动距离*阻尼系数
+//                    float distance = (e.getY() - topY) * pullRatio;
                 }
 
-                //计算阻尼后的滑动距离 = 滑动距离*阻尼系数
-                float distance = (e.getY() - topY) * pullRatio;
-                Log.i("LHD", "onTouchEvent  ==  " + distance + "     (e.getRawY() - topY)   ==  " + (e.getRawY() - topY));
-                //若向上滑动，此时刷新头部已经隐藏，不处理
-                if (distance < 0) break;
-                isPulling = true;
-                //如果是刷新中，距离需要加上头部的高度
-                if (curState == STATE_REFRESHING) {
-                    distance += headerViewHeight;
-                }
-                setState(distance);
+//                Log.i("LHD", "isTop  ==  " + isTop + "   e.getRawY()  =  " + e.getRawY() + "  headerViewHeight  =  " + headerViewHeight);
+//                if (!isPulling) {
+//                    if (isTop) {
+//                        //recyclerView滑到最顶部的时候记录当前y坐标
+//                        topY = e.getY();
+//                    } else {//没有滑到最顶部的时候不处理
+//                        break;
+//                    }
+//                }
+//
+//                //计算阻尼后的滑动距离 = 滑动距离*阻尼系数
+//                float distance = (e.getY() - topY) * pullRatio;
+////                Log.i("LHD", "onTouchEvent  ==  " + distance + "     (e.getRawY() - topY)   ==  " + (e.getRawY() - topY));
+//                //若向上滑动，此时刷新头部已经隐藏，不处理
+//                if (distance < 0) break;
+//                isPulling = true;
+//                //如果是刷新中，距离需要加上头部的高度
+//                if (curState == STATE_REFRESHING) {
+//                    distance += headerViewHeight;
+//                }
+//                setState(distance);
                 break;
             case MotionEvent.ACTION_UP:
                 replyPull();
@@ -173,6 +195,7 @@ public class PurRecyclerView extends RecyclerView {
 
         PurAdapter adapter = (PurAdapter) purAdapter;
         View headView = adapter.getHeaderView();
+        if (headView == null) return;
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) headView.getLayoutParams();
         float distance = layoutParams.height;
         if (distance <= 0) return;

@@ -33,6 +33,7 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private LayoutInflater inflater;
     private Context ctx;
 
+    private View refreshView;
     private View headerView;
     private View footerView;
 
@@ -56,8 +57,8 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case ITEM_HEAD:
-                View view = inflater.inflate(R.layout.view_header, parent, false);
-                HeaderHolder headerHolder = new HeaderHolder(view);
+                refreshView = inflater.inflate(R.layout.view_header, parent, false);
+                HeaderHolder headerHolder = new HeaderHolder(refreshView);
                 headerView = headerHolder.viewTop;
                 return headerHolder;
             case ITEM_NORMAL:
@@ -77,7 +78,8 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (holder == null) return;
         if (holder instanceof HeaderHolder) {
             HeaderHolder headerHolder = (HeaderHolder) holder;
-//            Log.i("LHD", "showHeaderView = " + showHeaderView + "    isReleaseToRefresh   ==  " + isReleaseToRefresh);
+            Log.i("LHD", "showHeaderView = " + showHeaderView + "    isReleaseToRefresh   ==  " + isReleaseToRefresh);
+            refreshView.setVisibility(showHeaderView ? View.VISIBLE : View.GONE);
             if (isReleaseToRefresh) {
                 headerHolder.imgArrow.setImageResource(R.drawable.arrow_down);
                 headerHolder.tvHeader.setText("松手刷新");
@@ -90,21 +92,23 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             footHolder.tvFooter.setText("上拉加载更多");
         } else {
             ItemHolder itemHolder = (ItemHolder) holder;
-            int itemPosition = position - 1;
+            int itemPosition = showHeaderView ? position - 1 : position;
             itemHolder.tvItem.setText(strs.get(itemPosition));
         }
     }
 
     @Override
     public int getItemCount() {
-        return strs.size() + 2;
+        return showHeaderView ? strs.size() + 2 : strs.size() + 1;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position == 0) {
+        if (showHeaderView && position == 0) {
             return ITEM_HEAD;
-        } else if (position == getItemCount() - 1) {// position 的取值范围是[0 , getItemCount()-1]  一共有getItemCount()个元素，要注意position是从0开始计算的
+        }
+        int bottomPosition = getItemCount() - 1;
+        if (position == bottomPosition) {// position 的取值范围是[0 , getItemCount()-1]  一共有getItemCount()个元素，要注意position是从0开始计算的
             return ITEM_FOOT;
         } else {
             return ITEM_NORMAL;
@@ -120,7 +124,7 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void changeHeaderHeight(float distance) {
-        Log.i("LHD", "distance = " + distance);
+//        Log.i("LHD", "distance = " + distance);
         if (headerView != null) {
             LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) headerView.getLayoutParams();
             layoutParams.height = (int) distance;
