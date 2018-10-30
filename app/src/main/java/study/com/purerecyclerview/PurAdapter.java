@@ -106,9 +106,7 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public int getItemViewType(int position) {
         if (showHeaderView && position == 0) {
             return ITEM_HEAD;
-        }
-        int bottomPosition = getItemCount() - 1;
-        if (position == bottomPosition) {// position 的取值范围是[0 , getItemCount()-1]  一共有getItemCount()个元素，要注意position是从0开始计算的
+        } else if (position == getItemCount() - 1) {// position 的取值范围是[0 , getItemCount()-1]  一共有getItemCount()个元素，要注意position是从0开始计算的
             return ITEM_FOOT;
         } else {
             return ITEM_NORMAL;
@@ -149,6 +147,28 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.showHeaderView = showHeaderView;
     }
 
+
+    private void startArrowAnim(final ImageView imageView, float roration) {
+        if (ivAnim != null) {
+            ivAnim.removeAllUpdateListeners();
+            ivAnim.cancel();
+        }
+        final float fRoration = roration;
+        float startRotation = imageView.getRotation();
+        ivAnim = ObjectAnimator.ofFloat(startRotation, fRoration).setDuration(rotationDuration);
+        ivAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                imageView.setRotation((Float) animation.getAnimatedValue());
+                if (((Float) animation.getAnimatedValue()) == fRoration) {
+                    ivAnim.removeAllUpdateListeners();
+                    ivAnim.cancel();
+                }
+            }
+        });
+        ivAnim.start();
+    }
+
     public class ItemHolder extends RecyclerView.ViewHolder {
         private TextView tvItem;
 
@@ -183,26 +203,5 @@ public class PurAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             tvFooter = itemView.findViewById(R.id.tv_footer);
         }
 
-    }
-
-    private void startArrowAnim(final ImageView imageView, float roration) {
-        if (ivAnim != null) {
-            ivAnim.removeAllUpdateListeners();
-            ivAnim.cancel();
-        }
-        final float fRoration = roration;
-        float startRotation = imageView.getRotation();
-        ivAnim = ObjectAnimator.ofFloat(startRotation, fRoration).setDuration(rotationDuration);
-        ivAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                imageView.setRotation((Float) animation.getAnimatedValue());
-                if (((Float) animation.getAnimatedValue()) == fRoration) {
-                    ivAnim.removeAllUpdateListeners();
-                    ivAnim.cancel();
-                }
-            }
-        });
-        ivAnim.start();
     }
 }

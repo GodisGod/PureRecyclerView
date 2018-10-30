@@ -72,11 +72,14 @@ public class PurRecyclerView extends RecyclerView {
                 float dis = currrentY - downY;
                 Log.i("LHD", "摁下的坐标:  " + downY + "  滑动的距离:  " + dis + "  isTop = " + isTop);
                 if (isTop) {
+                    PurAdapter adapter = (PurAdapter) purAdapter;
                     if (dis <= 0) {//todo 不再下拉
-
+                        adapter.changeHeaderHeight(0);
+                        adapter.setShowHeaderView(false);
                     } else {
                         //改变headview的高度
-//                        PurAdapter adapter = (PurAdapter) purAdapter;
+                        adapter.setShowHeaderView(true);
+                        adapter.changeHeaderHeight(dis);
 //                        adapter.changeHeaderHeight(dis);
                     }
                     //计算阻尼后的滑动距离 = 滑动距离*阻尼系数
